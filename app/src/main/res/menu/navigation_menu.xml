@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/nav_account"
-        android:title="My Account"/>
+    <item android:id="@+id/nav_shoppingList"
+        android:title="My Shopping List"/>
+
+    <item android:id="@+id/nav_recipes"
+        android:title="Recipes"/>
 
     <item android:id="@+id/nav_settings"
         android:title="Settings"/>
