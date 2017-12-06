@@ -1,7 +1,9 @@
 package com.example.tehhuzzlenut.ripebananas;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -11,60 +13,54 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by TehHuzzlenut on 11/29/2017.
  */
 
-public class CustomListView extends ArrayAdapter<String>{
+public class CustomListView extends ArrayAdapter<Food>{
 
     //Class for custom view adapter of listview
 
-    private String[] foodName;
-    private String[] foodExpDate;
-    private Integer[] imgs;
-    private Activity context;
+    private Context mContext;
+    private List<Food> foodsList = new ArrayList<>();
 
-    public CustomListView(Activity context, String[] foodName, String[] foodExpDate, Integer[] imgs) {
-        super(context, R.layout.listview_layout, foodName);
-
-        this.context = context;
-        this.foodName = foodName;
-        this.foodExpDate = foodExpDate;
-        this.imgs = imgs;
+    public CustomListView(@NonNull Context context, @SuppressLint("SupportAnnotationUsage") @LayoutRes ArrayList<Food> list) {
+        super(context, 0 , list);
+        mContext = context;
+        foodsList = list;
     }
 
     @NonNull
     @Override
-    public View getView(int postion, @Nullable View convertView, @NonNull ViewGroup parent) {
-        View r = convertView;
-        ViewHolder viewHolder = null;
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-        if(r == null){
-            LayoutInflater layoutInflater = context.getLayoutInflater();
-            r = layoutInflater.inflate(R.layout.listview_layout, null, true);
-            viewHolder = new ViewHolder(r);
-            r.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) r.getTag();
-        }
+        View listItem = convertView;
+        if(listItem == null)
+            listItem = LayoutInflater.from(mContext).inflate(R.layout.listview_layout,parent,false);
 
-        viewHolder.foodImg.setImageResource(imgs[postion]);
-        viewHolder.foodNameTV.setText(foodName[postion]);
-        viewHolder.foodExpDateTV.setText(foodExpDate[postion]);
+        Food currentFood = foodsList.get(position);
 
-        return r;
+        ImageView image = (ImageView)listItem.findViewById(R.id.foodImageView);
+        image.setImageResource(currentFood.getmImageDrawable());
+
+        TextView name = (TextView) listItem.findViewById(R.id.tvfoodName);
+        name.setText(currentFood.getmName());
+
+        TextView foodExpDate = (TextView) listItem.findViewById(R.id.tvFoodExpDate);
+        foodExpDate.setText(currentFood.getmRelease());
+
+        return listItem;
+    }
+
+    public void removeItem(int position) {
 
     }
 
-    class ViewHolder{
-        TextView foodNameTV;
-        TextView foodExpDateTV;
-        ImageView foodImg;
-
-        ViewHolder(View v){
-            foodNameTV = v.findViewById(R.id.tvfoodName);
-            foodExpDateTV = v.findViewById(R.id.tvFoodExpDate);
-            foodImg = v.findViewById(R.id.foodImageView);
-        }
+    public long getItemId(int position) {
+        return position;
     }
+
 }
