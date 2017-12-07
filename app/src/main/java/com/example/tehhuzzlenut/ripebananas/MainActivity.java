@@ -1,17 +1,22 @@
 package com.example.tehhuzzlenut.ripebananas;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Build;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -28,6 +33,16 @@ public class MainActivity extends AppCompatActivity {
     ListView lst;
     private CustomListView mAdapter;
 
+    //Buttons
+    private Button addButton;
+
+    //ArrayList of Foods
+    final ArrayList<Food> foodsList = new ArrayList<>();
+
+    //Database Helper
+    DatabaseHelper db;
+
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,14 +57,17 @@ public class MainActivity extends AppCompatActivity {
         drawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //Database Helper setup
+        db = new DatabaseHelper(MainActivity.this);
+
 
         //Set up ListView
-        lst = (ListView) findViewById(R.id.lst);
-        LayoutInflater layoutInflater = getLayoutInflater();
-        final ArrayList<Food> foodsList = new ArrayList<>();
-        foodsList.add(new Food(R.drawable.bananas, "Bananas" , "date"));
-        mAdapter = new CustomListView(this,foodsList);
-        lst.setAdapter(mAdapter);
+//        lst = (ListView) findViewById(R.id.lst);
+//        //LayoutInflater layoutInflater = getLayoutInflater();
+//        foodsList.add(new Food(R.drawable.bananas, "Bananas" , "date"));
+//        mAdapter = new CustomListView(this,foodsList);
+//        lst.setAdapter(mAdapter);
+        populateListView();
 
 
         //Long click listener for listview - Delete an item
@@ -68,9 +86,10 @@ public class MainActivity extends AppCompatActivity {
                         .setMessage("Have you already consumed this food? If so, hit yes to delete.")
                         .setPositiveButton("Yes, it's all gone.", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
+                                String name = foodsList.get(position).getmName();
                                 foodsList.remove(position);
                                 mAdapter.notifyDataSetChanged();
-                                Toast.makeText(MainActivity.this, "Removed from list.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, name + " removed from list.", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .setNegativeButton("No, it's still in my pantry.", new DialogInterface.OnClickListener() {
@@ -85,12 +104,50 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Button to add item to list
-        
+        //Button to add item to list - send to new activity to add to the list, update list with info
+        addButton = (Button) findViewById(R.id.addButton);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, AddFood.class);
+                int RESULT_CODE = 10;
+                startActivityForResult(i, RESULT_CODE);
+            }
+        });
+
+        //Receive intent upon returning to main activity from Add food
+        //Intent receivedIntent = getIntent();
+
+        //checkIntent(receivedIntent);
+
     }
 
+    //Populate listview
+    private void populateListView() {
+//        Log.d(TAG, "populateListView: Displaying data in the ListView.");
+//        Log.d(TAG, "populateListView: got database.");
+//        Cursor data = db.getData();
+//        if(data == null){
+//            Log.d(TAG, "populateListView: NOTHING HERE.");
+//            Toast.makeText(MainActivity.this, "NOTHING HERE", Toast.LENGTH_SHORT).show();
+//        }
+//        while(data.moveToNext()){
+//            //Get the value form the database and add to Arraylist
+//            foodsList.add(new Food(R.drawable.foodplaceholder, data.getString(1), data.getString(2)));
+//        }
 
+        //Create listview
+        //lst = (ListView) findViewById(R.id.lst);
+        //LayoutInflater layoutInflater = getLayoutInflater();
 
+        lst = (ListView) findViewById(R.id.lst);
+        foodsList.add(new Food(R.drawable.bananas, "Bananas" , "date"));
+        foodsList.add(new Food(R.drawable.mango, "Mangos" , "date"));
+        foodsList.add(new Food(R.drawable.onions, "Onions" , "date"));
+        mAdapter = new CustomListView(this,foodsList);
+        lst.setAdapter(mAdapter);
+
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
