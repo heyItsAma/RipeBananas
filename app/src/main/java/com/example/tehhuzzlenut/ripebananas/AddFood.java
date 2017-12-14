@@ -1,12 +1,16 @@
 package com.example.tehhuzzlenut.ripebananas;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 public class AddFood extends AppCompatActivity {
@@ -19,6 +23,11 @@ public class AddFood extends AppCompatActivity {
 
     //Database
     DatabaseHelper db;
+
+    //Camera
+    public static final int REQUEST_CAPTURE = 20;
+    ImageView foodPhoto;
+    private Button takeFoodPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +55,43 @@ public class AddFood extends AppCompatActivity {
                 addNewFood();
             }
         });
+
+        //Picture Button Setup
+
+        //Check for Camera
+        if(!hasCamera()){
+            takeFoodPhoto.setEnabled(false);
+        }
+
+        takeFoodPhoto = (Button) findViewById(R.id.foodPictureButton);
+        takeFoodPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchCamera(view);
+            }
+        });
+
+    }
+
+    public boolean hasCamera(){
+        return getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
+    }
+
+    public void launchCamera(View v){
+        Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(i, REQUEST_CAPTURE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_CAPTURE && resultCode == RESULT_OK){
+            Bundle extras = data.getExtras();
+            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            foodPhoto = (ImageView) findViewById(R.id.foodCameraImage);
+            foodPhoto.setImageBitmap(imageBitmap);
+            //foodPhoto.invalidate();
+        }
     }
 
     private void addNewFood() {
